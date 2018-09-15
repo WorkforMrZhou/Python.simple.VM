@@ -1,14 +1,6 @@
 from __future__ import print_function
-from collections import deque
-
+from Stack import Stack
 import sys
-
-
-class Stack(deque):
-    push = deque.append
-
-    def top(self):
-        return self[-1]
 
 
 class Machine:
@@ -131,18 +123,10 @@ class Machine:
         b = self.pop()
         self.push(a == b)
 
+    def call(self):
+        addr = self.instruction_pointer
+        self.return_addr_stack.push(addr)
+        self.jmp()
 
-# Machine([
-#     '"Enter a number: "', "print", "read", "cast_int",
-#     '"Enter another number: "', "print", "read", "cast_int",
-#     "over", "over",
-#     '"Their sum is: "', "print", "+", "println",
-#     '"Their product is: "', "print", "*", "println"
-# ]).run()
-
-Machine([
-    '"Enter a number: "', "print", "read", "cast_int",
-    '"The number "', "print", "dup", "print", '" is "', "print",
-    2, "%", 0, "==", '"even."', '"odd."', "if", "println",
-    0, "jmp",
-]).run()
+    def return_(self):
+        self.instruction_pointer = self.return_addr_stack.pop()
