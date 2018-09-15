@@ -36,16 +36,16 @@ class Machine:
 
     def dispatch(self, op):
         dispatch_map = {
-            # "%":                self.mod,
+            "%":                self.mod,
             "*":                self.mul,
             "+":                self.plus,
             "-":                self.minus,
             "/":                self.div,
-            # "==":               self.eq,
+            "==":               self.eq,
             "cast_int":         self.cast_int,
             "cast_str":         self.cast_str,
             # "drop":             self.drop,
-            # "dup":              self.dup,
+            "dup":              self.dup,
             "if":               self.if_stmt,
             "jmp":              self.jmp,
             "over":             self.over,
@@ -62,6 +62,8 @@ class Machine:
             self.push(op)
         elif isinstance(op, str) and op[0] == op[-1] == '"':
             self.push(op[1:-1])
+        elif isinstance(op, bool):
+            self.push(op)
         else:
             raise RuntimeError("unknown opcode: {}".format(op))
 
@@ -117,11 +119,30 @@ class Machine:
         self.push(b)
         self.push(a)
 
+    def dup(self):
+        self.push(self.top())
+
+    def mod(self):
+        last = self.pop()
+        self.push(self.pop() % last)
+
+    def eq(self):
+        a = self.pop()
+        b = self.pop()
+        self.push(a == b)
+
+
+# Machine([
+#     '"Enter a number: "', "print", "read", "cast_int",
+#     '"Enter another number: "', "print", "read", "cast_int",
+#     "over", "over",
+#     '"Their sum is: "', "print", "+", "println",
+#     '"Their product is: "', "print", "*", "println"
+# ]).run()
 
 Machine([
     '"Enter a number: "', "print", "read", "cast_int",
-    '"Enter another number: "', "print", "read", "cast_int",
-    "over", "over",
-    '"Their sum is: "', "print", "+", "println",
-    '"Their product is: "', "print", "*", "println"
+    '"The number "', "print", "dup", "print", '" is "', "print",
+    2, "%", 0, "==", '"even."', '"odd."', "if", "println",
+    0, "jmp",
 ]).run()
